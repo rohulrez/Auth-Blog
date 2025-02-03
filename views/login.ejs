@@ -1,0 +1,27 @@
+<%- include('includes/head.ejs', {title: 'Login'})%>
+<link rel="stylesheet" href="/styles/auth.css">
+<link rel="stylesheet" href="/styles/forms.css">
+</head>
+<body>
+    <%- include('includes/header.ejs')%>
+    <main>
+        <h1>Login</h1>
+        <form action="/login" method="POST">
+            <div class="form-control">
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" required>
+            </div>
+           <div class="form-control">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" required>
+           </div>
+           <button class="btn">login</button>
+        </form>
+        <div class="auth-alternative">
+            <a class="btn btn-alt" href="/signup">create a new user</a>
+        </div>
+    </main>
+</body>
+
+
+</html>
