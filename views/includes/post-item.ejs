@@ -1,11 +1,11 @@
 <li class="post-item">
-<article>
-    <h3><% = title %> </h3>
-    <div class="actions">
-    <a class="brn" href="/posts/.../edit">View & Edit</a>
-    <form action="/post/.../delete" method="POST">
-        <button class="btn btn-alt">Delete</button>
-    </form>
-    </div>
-</article>
-</li>
+    <article>
+      <h3><%= title %></h3>
+      <div class="actions">
+        <a class="btn" href="/posts/<%= postId %>/edit">View & Edit</a>
+        <form action="/posts/<%= postId %>/delete" method="POST">
+          <button class="btn btn-alt">Delete</button>
+        </form>
+      </div>
+    </article>
+  </li>

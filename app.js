@@ -2,14 +2,10 @@ const path = require('path');
 
 const express = require('express');
 const session = require('express-session');
-const mongodbStore = require('connect-mongodb-session')
-
-const { error } = require('console');
-const { nextTick } = require('process');
+const mongodbStore = require('connect-mongodb-session');
 
 const db = require('./data/database')
 const blogRoutes = require('./routes/blog');
-const { MongoOIDCError } = require('mongodb');
 
 const MongoDBStore = mongodbStore(session);
 
@@ -38,7 +34,7 @@ app.use(session({
 
 app.use((req, res, next) =>{
     const user = req.session.user;
-    const isAuth = req.session.isAuthinticated;
+    const isAuth = req.session.isAuthenticated;
 
     if(!user || !isAuth) {
         return next();

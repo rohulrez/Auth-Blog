@@ -1,9 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs')
-const mongodb = require('mongodb')
+
 
 const db = require('../data/database');
-const session = require('express-session');
 
 const router = express.Router();
 
@@ -18,7 +17,7 @@ router.get('/signup', (req, res)=> {
        sessionInputData= {
         hasError: false,
         email: '',
-        conrfirmEmail: '',
+        confirmEmail: '',
         password: '',
     }};
 
@@ -51,10 +50,10 @@ router.post('/signup', async (req, res) => {
 
     if (!enteredEmail || 
         !enteredConfirmEmail || 
-        !enteredPassword || !
-        enteredPassword < 6 || 
-        enteredEmail != enteredConfirmEmail || 
-        !enteredEmail.include('@')
+        !enteredPassword || 
+        enteredPassword.trim().length < 6 || 
+        enteredEmail !== enteredConfirmEmail || 
+        !enteredEmail.includes('@')
     ) {
 
         req.session.inputData = {
@@ -66,7 +65,7 @@ router.post('/signup', async (req, res) => {
         }
 
         req.session.save(() =>{
-            return  res.redirect('/signup');
+            res.redirect('/signup');
         });
         return;
     }
@@ -111,7 +110,6 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
     const userData = req.body;
     const enteredEmail = userData.email;
-    const enteredConfirmEmail = userData['confirm-email'] ;
     const enteredPassword = userData.password;
 
     const existingUser = await db
@@ -126,7 +124,6 @@ router.post('/login', async (req, res) => {
             hasError: true,
             message: 'Could not log in - please check you credentials!',
             email: enteredEmail,
-            confirmEmail: enteredConfirmEmail,
             password: enteredPassword
         };
         req.session.save(() => {
@@ -140,12 +137,11 @@ router.post('/login', async (req, res) => {
         existingUser.password
     );
 
-    if(! passwordsAreEqual) {
+    if(!passwordsAreEqual) {
         req.session.inputData = {
             hasError: true,
             message: 'Could not log in - please check you credentials!',
             email: enteredEmail,
-            confirmEmail: enteredConfirmEmail,
             password: enteredPassword
         };
 
@@ -156,7 +152,7 @@ router.post('/login', async (req, res) => {
     }
 
     req.session.user = {
-        id: existingUser._id.toString(),
+        id: existingUser._id,
         email: existingUser.email
     };
     req.session.isAuthenticated = true;
@@ -170,15 +166,43 @@ router.post('/login', async (req, res) => {
 router.get('/admin', async (req, res)=> {
     if(!req.session.isAuthenticated) {
         return res.status(401).render('401');
-    };
+    };   
     
-    res.render('admin');
+    const posts = await db.getDb().collection('posts').find().toArray();
+    let sessionInputData = req.session.inputData;
+
+  if (!sessionInputData) {
+    sessionInputData = {
+      title: '',
+      content: '',
+    };
+  }
+  req.session.inputData = null;
+
+   return res.render('admin', { 
+    posts: posts,
+    inputData: sessionInputData
+   });
 });
 
 router.post('/logout', (req, res)=>{
     req.session.user = null;
     req.session.isAuthenticated = false;
     res.redirect('/');
+});
+
+router.post('/posts', async (req, res) => {
+    const enteredTitle = req.body.title;
+    const enteredContent = req.body.content;
+
+    const newPost = {
+        title: enteredTitle,
+        content: enteredContent,
+    };
+
+    await db.getDb().collection('posts').insertOne(newPost);
+
+    return res.redirect('/admin')
 })
 
 module.exports = router;
