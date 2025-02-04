@@ -1,0 +1,11 @@
+<form action="<% = submitUrl %>" method="POST">
+<div class="form-control">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title"  value="<%= title %>" required>
+</div>
+<div class="form-control">
+    <label for="content">Content</label>
+    <textarea name="content" rows="6" id="content" required><%= content %></textarea>
+</div>
+<button class="btn">Save</button>
+</form>

@@ -6,14 +6,17 @@
     <%- include('includes/header.ejs')%>
     <main>
         <h1>Login</h1>
+        <% if (inputData.hasError) { %>
+            <p id="input-error"> <%= inputData.message %></p>
+        <% } %>
         <form action="/login" method="POST">
             <div class="form-control">
                 <label for="email">Email</label>
-                <input type="email" name="email" id="email" required>
+                <input type="email" name="email" id="email" value="<%= inputData.email %>" required>
             </div>
            <div class="form-control">
             <label for="password">Password</label>
-            <input type="password" name="password" id="password" required>
+            <input type="password" name="password" id="password" value="<%= inputData.password %>" required>
            </div>
            <button class="btn">login</button>
         </form>

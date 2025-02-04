@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const mongodb = require('mongodb')
 
 const db = require('../data/database');
+const session = require('express-session');
 
 const router = express.Router();
 
@@ -10,12 +11,36 @@ router.get('/',(req, res)=>{
     res.render('welcome');
 });
 
-router.get('/signup', (req, res)=>{
-    res.render('signup');
-})
+router.get('/signup', (req, res)=> {
+    let sessionInputData = req.session.inputData;
+   
+    if (!sessionInputData) {
+       sessionInputData= {
+        hasError: false,
+        email: '',
+        conrfirmEmail: '',
+        password: '',
+    }};
+
+    req.session.inputData = null;
+
+    res.render('signup', {inputData: sessionInputData});
+
+});
 
 router.get('/login',  (req, res) => {
-    res.render('login');
+    let sessionInputData = req.session.inputData;
+   
+    if (!sessionInputData) {
+       sessionInputData= {
+        hasError: false,
+        email: '',
+        password: '',
+    }};
+
+    req.session.inputData = null;
+
+    res.render('login', {inputData: sessionInputData});
 })
 
 router.post('/signup', async (req, res) => {
@@ -31,19 +56,40 @@ router.post('/signup', async (req, res) => {
         enteredEmail != enteredConfirmEmail || 
         !enteredEmail.include('@')
     ) {
-        return  res.redirect('/signup');
-    };
 
-    const existingUser = db
+        req.session.inputData = {
+            hasError: true,
+            message: 'Invalid input - please check your data.',
+            email: enteredEmail,
+            confirmEmail: enteredConfirmEmail,
+            password: enteredPassword
+        }
+
+        req.session.save(() =>{
+            return  res.redirect('/signup');
+        });
+        return;
+    }
+
+    const existingUser = await db
     .getDb()
     .collection('users')
     .findOne({email: enteredEmail});
 
     if(existingUser) {
-        return res.redirect('/signup');
-    }
+        req.session.inputData = {
+            hasError: true,
+            message: 'User already axists!',
+            email: enteredEmail,
+            confirmEmail: enteredConfirmEmail,
+            password: enteredPassword
+        };
 
-
+        req.session.save(() => { 
+             res.redirect('/signup');
+        })
+        return;
+    };
 
     const hashedPassword = await bcrypt.hash(enteredPassword, 9);
 
@@ -53,7 +99,11 @@ router.post('/signup', async (req, res) => {
         password: hashedPassword
     };
 
-    await db.getDb().collection('users').insertOne(user);
+    await db
+    .getDb()
+    .collection('users')
+    .insertOne(user);
+
 
     res.redirect('/login');
 })
@@ -72,7 +122,17 @@ router.post('/login', async (req, res) => {
     });
 
     if(!existingUser) {
-        res.redirect('/login');
+        req.session.inputData = {
+            hasError: true,
+            message: 'Could not log in - please check you credentials!',
+            email: enteredEmail,
+            confirmEmail: enteredConfirmEmail,
+            password: enteredPassword
+        };
+        req.session.save(() => {
+            res.redirect('/login');
+        })
+        return;
     };
 
     const passwordsAreEqual = await bcrypt.compare(
@@ -81,16 +141,43 @@ router.post('/login', async (req, res) => {
     );
 
     if(! passwordsAreEqual) {
-        return res.redirect('login');
+        req.session.inputData = {
+            hasError: true,
+            message: 'Could not log in - please check you credentials!',
+            email: enteredEmail,
+            confirmEmail: enteredConfirmEmail,
+            password: enteredPassword
+        };
+
+        req.session.save(() => {
+            res.redirect('/login');
+        });
+        return;
     }
-    res.redirect('/admin');
+
+    req.session.user = {
+        id: existingUser._id.toString(),
+        email: existingUser.email
+    };
+    req.session.isAuthenticated = true;
+
+    req.session.save(() => {
+        res.redirect('/admin');
+    });
+
 })
 
-router.get('/admin', (req, res)=> {
+router.get('/admin', async (req, res)=> {
+    if(!req.session.isAuthenticated) {
+        return res.status(401).render('401');
+    };
+    
     res.render('admin');
 });
 
 router.post('/logout', (req, res)=>{
+    req.session.user = null;
+    req.session.isAuthenticated = false;
     res.redirect('/');
 })
 
