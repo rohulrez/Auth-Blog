@@ -3,13 +3,16 @@ const path = require('path');
 const express = require('express');
 const session = require('express-session');
 const mongodbStore = require('connect-mongodb-session');
+const csrf = require('csurf')
 
 const db = require('./data/database')
 const blogRoutes = require('./routes/blog');
+const { constrainedMemory } = require('process');
 
 const MongoDBStore = mongodbStore(session);
 
 const app = express();
+
 
 const sessionStore = new MongoDBStore({
     uri: 'mongodb://localhost:27017',
@@ -32,6 +35,13 @@ app.use(session({
     }
 }));
 
+app.use(csrf());
+
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+  });
+
 app.use((req, res, next) =>{
     const user = req.session.user;
     const isAuth = req.session.isAuthenticated;
@@ -53,3 +63,4 @@ app.use((error, req, res, next)=> {
 db.connectToDatabase().then(()=> {
     app.listen('3000');
 })
+;

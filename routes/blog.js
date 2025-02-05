@@ -3,11 +3,13 @@ const bcrypt = require('bcryptjs')
 
 
 const db = require('../data/database');
+const { ObjectId, ReturnDocument } = require('mongodb');
+const session = require('express-session');
 
 const router = express.Router();
 
 router.get('/',(req, res)=>{
-    res.render('welcome');
+    res.render('welcome', {csrfToken: req.csrfToken()});
 });
 
 router.get('/signup', (req, res)=> {
@@ -23,7 +25,10 @@ router.get('/signup', (req, res)=> {
 
     req.session.inputData = null;
 
-    res.render('signup', {inputData: sessionInputData});
+    res.render('signup', {
+        inputData: sessionInputData,
+        csrfToken: req.csrfToken()
+    });
 
 });
 
@@ -39,7 +44,11 @@ router.get('/login',  (req, res) => {
 
     req.session.inputData = null;
 
-    res.render('login', {inputData: sessionInputData});
+    res.render('login', {
+        inputData: sessionInputData,
+        csrfToken: req.csrfToken()
+
+    });
 })
 
 router.post('/signup', async (req, res) => {
@@ -168,11 +177,17 @@ router.get('/admin', async (req, res)=> {
         return res.status(401).render('401');
     };   
     
-    const posts = await db.getDb().collection('posts').find().toArray();
+    const posts = await db
+    .getDb()
+    .collection('posts')
+    .find()
+    .toArray();
+
     let sessionInputData = req.session.inputData;
 
   if (!sessionInputData) {
     sessionInputData = {
+      hasError: false,
       title: '',
       content: '',
     };
@@ -181,7 +196,8 @@ router.get('/admin', async (req, res)=> {
 
    return res.render('admin', { 
     posts: posts,
-    inputData: sessionInputData
+    inputData: sessionInputData,
+    csrfToken: req.csrfToken()
    });
 });
 
@@ -195,6 +211,23 @@ router.post('/posts', async (req, res) => {
     const enteredTitle = req.body.title;
     const enteredContent = req.body.content;
 
+
+    if(!enteredTitle ||
+        !enteredContent||
+        enteredTitle.trim() === ''||
+        enteredContent.trim() === ''
+    ) {
+        req.session.inputData = {
+            hasError: true,
+            message: 'invalid input - please check your data.',
+            title: enteredTitle,
+            content: enteredContent
+        }
+        res.redirect('/admin');
+        return;
+    };
+
+
     const newPost = {
         title: enteredTitle,
         content: enteredContent,
@@ -202,7 +235,79 @@ router.post('/posts', async (req, res) => {
 
     await db.getDb().collection('posts').insertOne(newPost);
 
-    return res.redirect('/admin')
+     res.redirect('/admin')
 })
+
+router.get('/posts/:id/edit',async (req, res) =>{
+
+    const postId = new ObjectId(req.params.id);
+    const post = await db.getDb().collection('posts').findOne({_id: postId});
+
+    if(!post) {
+        res.render('404');
+    }
+
+    let sessionInputData = req.session.inputData;
+
+    if(!sessionInputData) {
+        sessionInputData = {
+            hasError: false,
+            title: post.title,
+            content: post.content
+        }
+    }
+
+    req.session.inputData = null;
+
+    res.render('single-post', {
+        post: post,
+        inputData: sessionInputData,
+        csrfToken: req.csrfToken()
+    });
+});
+
+router.post('/posts/:id/edit', async (req, res) => {
+    const enteredTitle = req.body.title;
+    const enteredContent = req.body.content;
+    const postId = new ObjectId(req.params.id);
+
+    if(!enteredTitle ||
+        !enteredContent ||
+        enteredTitle.trim() === '' ||
+        enteredContent.trim() === ''
+    ) {
+        req.session.inputData = {
+            hasError: true,
+            message: 'Invalid input - please check you data.',
+            title: enteredTitle,
+            content: enteredContent
+        }
+        res.redirect(`/posts/${req.params.id}/edit`);
+        return;
+    };
+
+
+    await db
+    .getDb()
+    .collection('posts')
+    .updateOne(
+        {_id: postId},
+        {$set: {title: enteredTitle, content: enteredContent}}
+    );
+
+
+    res.redirect('/admin');
+    return;
+});
+
+router.post('/posts/:id/delete', async (req, res) =>{
+ const postId = new ObjectId(req.params.id);
+
+ await db.getDb().collection('posts').deleteOne(
+    {_id: postId},
+
+res.redirect('/admin')
+)});
+
 
 module.exports = router;
