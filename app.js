@@ -7,6 +7,7 @@ const csrf = require('csurf')
 
 const db = require('./data/database')
 const blogRoutes = require('./routes/blog');
+const authRoutes = require('./routes/auth');
 const { constrainedMemory } = require('process');
 
 const MongoDBStore = mongodbStore(session);
@@ -55,6 +56,7 @@ app.use((req, res, next) =>{
 })
 
 app.use(blogRoutes);
+app.use(authRoutes);
 
 app.use((error, req, res, next)=> {
     res.status(500).render('500');
