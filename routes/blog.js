@@ -9,7 +9,7 @@ const ObjectId = mongodb.ObjectId;
 const router = express.Router();
 
 router.get('/',(req, res)=>{
-    res.render('welcome', {csrfToken: req.csrfToken()});
+    res.render('welcome');
 });
 
 
@@ -24,6 +24,7 @@ router.get('/admin', async (req, res)=> {
     .find()
     .toArray();
 
+
     let sessionInputData = req.session.inputData;
 
   if (!sessionInputData) {
@@ -35,11 +36,16 @@ router.get('/admin', async (req, res)=> {
   }
   req.session.inputData = null;
 
-   return res.render('admin', { 
+  res.render('adimin', {
     posts: posts,
     inputData: sessionInputData,
-    csrfToken: req.csrfToken()
-   });
+  });
+  return;
+
+//    return res.render('admin', { 
+//     posts: posts,
+//     inputData: sessionInputData,
+//    });
 });
 
 
@@ -62,7 +68,6 @@ router.post('/posts', async (req, res) => {
         res.redirect('/admin');
         return;
     };
-
 
     const newPost = {
         title: enteredTitle,

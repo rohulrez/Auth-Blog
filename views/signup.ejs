@@ -10,7 +10,6 @@
             <p id="input-error"><%= inputData.message %></p>
             <% }%>
         <form action="/signup" method="POST">
-            <input type="hidden" value="<%= csrfToken %>" name="_csrf">
             <div class="form-control">
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" value="<%= inputData.email %>" required>

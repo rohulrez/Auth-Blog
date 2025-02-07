@@ -21,7 +21,7 @@ router.get('/signup', (req, res)=> {
 
     res.render('signup', {
         inputData: sessionInputData,
-        csrfToken: req.csrfToken()
+        // csrfToken: req.csrfToken()
     });
 
 });
@@ -40,7 +40,7 @@ router.get('/login',  (req, res) => {
 
     res.render('login', {
         inputData: sessionInputData,
-        csrfToken: req.csrfToken()
+        // csrfToken: req.csrfToken()
 
     });
 })
