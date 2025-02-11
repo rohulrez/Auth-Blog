@@ -12,7 +12,9 @@
           <%- include('includes/post-form', { 
             submitUrl: '/posts', 
             title: inputData.title, 
-            content: inputData.content }) 
+            content: inputData.content,
+            hasError: inputData.hasError,
+            errorMessage: inputData.message }) 
           %>
         </section>
         <section>

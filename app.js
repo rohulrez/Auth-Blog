@@ -2,7 +2,7 @@ const path = require('path');
 
 const express = require('express');
 const session = require('express-session');
-// const csrf = require('csurf')
+const csrf = require('csurf');
 
 const db = require('./data/database')
 const blogRoutes = require('./routes/blog');
@@ -18,18 +18,14 @@ const mongodbSessionStore = sessionConfig.createSessionStore(session);
 const app = express();
 
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
+app.use(express.static('public'));
 app.use(express.urlencoded({extended: false}));
-app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(session(sessionConfig.createSessionConfig(mongodbSessionStore)));
-// app.use(csrf());
 
-// app.use((req, res, next) => {
-//     res.locals.csrfToken = req.csrfToken();
-//     next();
-//   });
-
+app.use(csrf());
 app.use(authMiddleware);
 
 app.use(blogRoutes);

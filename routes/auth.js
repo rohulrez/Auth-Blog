@@ -1,5 +1,5 @@
 const express = require('express');
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
 
 
 const db = require('../data/database');
@@ -21,7 +21,7 @@ router.get('/signup', (req, res)=> {
 
     res.render('signup', {
         inputData: sessionInputData,
-        // csrfToken: req.csrfToken()
+        csrfToken: req.csrfToken(),
     });
 
 });
@@ -40,8 +40,7 @@ router.get('/login',  (req, res) => {
 
     res.render('login', {
         inputData: sessionInputData,
-        // csrfToken: req.csrfToken()
-
+        csrfToken: req.csrfToken()
     });
 })
 
@@ -54,7 +53,7 @@ router.post('/signup', async (req, res) => {
     if (!enteredEmail || 
         !enteredConfirmEmail || 
         !enteredPassword || 
-        enteredPassword.trim().length < 6 || 
+        enteredPassword.length < 6 || 
         enteredEmail !== enteredConfirmEmail || 
         !enteredEmail.includes('@')
     ) {

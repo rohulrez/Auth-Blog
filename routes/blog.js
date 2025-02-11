@@ -9,7 +9,7 @@ const ObjectId = mongodb.ObjectId;
 const router = express.Router();
 
 router.get('/',(req, res)=>{
-    res.render('welcome');
+    res.render('welcome', {csrfToken: req.csrfToken()});
 });
 
 
@@ -33,19 +33,16 @@ router.get('/admin', async (req, res)=> {
       title: '',
       content: '',
     };
-  }
+  };
+  
   req.session.inputData = null;
 
-  res.render('adimin', {
+  
+    res.render('admin', { 
     posts: posts,
     inputData: sessionInputData,
-  });
-  return;
-
-//    return res.render('admin', { 
-//     posts: posts,
-//     inputData: sessionInputData,
-//    });
+    csrfToken: req.csrfToken(),
+   });
 });
 
 
@@ -103,7 +100,7 @@ router.get('/posts/:id/edit',async (req, res) =>{
     res.render('single-post', {
         post: post,
         inputData: sessionInputData,
-        csrfToken: req.csrfToken()
+        csrfToken: req.csrfToken(),
     });
 });
 
@@ -145,10 +142,10 @@ router.post('/posts/:id/delete', async (req, res) =>{
  const postId = new ObjectId(req.params.id);
 
  await db.getDb().collection('posts').deleteOne(
-    {_id: postId},
+    {_id: postId},)
 
 res.redirect('/admin')
-)});
+});
 
 
 module.exports = router;

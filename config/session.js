@@ -1,5 +1,5 @@
 const mongodbStore = require('connect-mongodb-session');
-const session = require('express-session');
+
 
 createSessionStore = (session) => {
     const MongoDBStore = mongodbStore(session);
