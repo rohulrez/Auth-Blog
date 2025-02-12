@@ -25,6 +25,13 @@ app.use(express.urlencoded({extended: false}));
 
 app.use(session(sessionConfig.createSessionConfig(mongodbSessionStore)));
 
+app.use((error, req, res, next) => {
+    console.error(error); 
+
+    res.status(500).render('500', {
+        csrfToken: req.csrfToken ? req.csrfToken() : '',
+    });
+});
 app.use(csrf());
 app.use(authMiddleware);
 
