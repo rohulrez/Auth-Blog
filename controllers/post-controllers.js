@@ -13,6 +13,7 @@ getAdmin = async (req, res)=> {
     };   
     
     const posts = await Post.fetchAll();
+    let sessionErrorData;
 
     sessionErrorData = validationSession.getSessionErrorData(req);
 
@@ -32,8 +33,8 @@ createPost = async (req, res) => {
 
     if(!enteredTitle ||
         !enteredContent||
-        enteredTitle === '' ||
-        enteredContent === ''
+        enteredTitle.trim() === '' ||
+        enteredContent.trim() === ''
     ) {
         req.session.inputData = {
             hasError: true,
@@ -51,21 +52,21 @@ createPost = async (req, res) => {
      res.redirect('/admin')
 }
 
-
 getSinglePost = async (req, res) =>{
-    const post = new Post(null ,null, req.params.id);
+    let post = new Post('' ,'', req.params.id);
     await post.fetch();
+
 
     if(!post.title || !post.content) {
         res.render('404');
         return;
     }
-
+    let sessionErrorData;
     sessionErrorData = validationSession.getSessionErrorData(req);
 
     res.render('single-post', {
         post: post,
-        inputData: sessionErrorData,
+        inputData: post,
         csrfToken: req.csrfToken(),
     });
 };
@@ -76,8 +77,8 @@ updatePost = async (req, res) => {
 
     if(!enteredTitle ||
         !enteredContent ||
-        enteredTitle === '' ||
-        enteredContent === ''
+        enteredTitle.trim() === '' ||
+        enteredContent.trim() === ''
     ) {
         req.session.inputData = {
             hasError: true,
