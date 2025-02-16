@@ -1,7 +1,7 @@
 <form action="<%= submitUrl %>" method="POST">
   <input type="hidden" value="<%= csrfToken %>" name="_csrf">
   <% if (inputData.hasError) {%>
-    <p id="input-id"><%= inputData.message %></p>
+    <p id="input-error"><%= inputData.message %></p>
   <% } %>
     <div class="form-control">
       <label for="title">Title</label>
@@ -9,7 +9,7 @@
     </div>
     <div class="form-control">
       <label for="content">Content</label>
-      <textarea name="content" id="content" rows="6" required><%- content %></textarea>
+      <textarea name="content" id="content" rows="6" required ><%- content %></textarea>
     </div>
     <button class="btn">Save</button>
   </form>

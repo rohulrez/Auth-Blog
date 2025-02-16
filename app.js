@@ -25,8 +25,8 @@ app.use(express.urlencoded({extended: false}));
 
 app.use(session(sessionConfig.createSessionConfig(mongodbSessionStore)));
 
-app.use(csrf());
 app.use(authMiddleware);
+app.use(csrf());
 
 app.use(blogRoutes);
 app.use(authRoutes);

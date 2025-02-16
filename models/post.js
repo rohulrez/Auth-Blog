@@ -23,10 +23,14 @@ class Post {
         if (!this.id) {
             return;
         }
+        const db = require('../data/database');
 
         const postDocument = await db.getDb().collection('posts').findOne({_id: this.id});
-        this.title = postDocument.title;
-        this.content = postDocument.content;
+        if(postDocument) {
+            this.title = postDocument.title;
+            this.content = postDocument.content;
+        }
+    
         return;
     }
     
