@@ -7,6 +7,18 @@ postIsValid = (title, content) => {
     );
 };
 
+userCredentialsAreValid = (email, confirmEmail, password) => {
+        return (
+            email &&
+            confirmEmail &&
+            password && 
+            password.length > 6 && 
+            email === confirmEmail &&
+            email.includes('@')
+        );
+    };
+
 module.exports = {
-    postIsValid: postIsValid
+    postIsValid: postIsValid,
+    userCredentialsAreValid: userCredentialsAreValid
 }

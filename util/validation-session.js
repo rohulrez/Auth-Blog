@@ -1,11 +1,11 @@
 
-function getSessionErrorData (req, defaultvalues) {
+function getSessionErrorData (req, defaultValues) {
     let sessionInputData = req.session.inputData;
 
     if (!sessionInputData) {
       sessionInputData = {
         hasError: false,
-       ...defaultvalues
+       ...defaultValues
       };
     };
     

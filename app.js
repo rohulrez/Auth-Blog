@@ -8,7 +8,8 @@ const db = require('./data/database')
 const blogRoutes = require('./routes/blog');
 const authRoutes = require('./routes/auth');
 const sessionConfig = require('./config/session');
-const authMiddleware = require('./middlewares/auth-middleware')
+const authMiddleware = require('./middlewares/auth-middleware');
+const addCSRFTokenMiddleware = require('./middlewares/csrf-token-middleware');
 
 
 const { constrainedMemory } = require('process');
@@ -24,9 +25,10 @@ app.use(express.static('public'));
 app.use(express.urlencoded({extended: false}));
 
 app.use(session(sessionConfig.createSessionConfig(mongodbSessionStore)));
-
-app.use(authMiddleware);
 app.use(csrf());
+
+app.use(addCSRFTokenMiddleware);
+app.use(authMiddleware);
 
 app.use(blogRoutes);
 app.use(authRoutes);

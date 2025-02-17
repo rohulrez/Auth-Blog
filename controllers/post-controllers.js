@@ -5,7 +5,7 @@ const { post } = require('../routes/blog');
 const validation = require('../util/validation');
 
 getHome = (req, res)=>{
-    res.render('welcome', {csrfToken: req.csrfToken()});
+    res.render('welcome');
 };
 
 
@@ -24,7 +24,6 @@ getAdmin = async (req, res)=> {
     res.render('admin', { 
     posts: posts,
     inputData: sessionErrorData,
-    csrfToken: req.csrfToken(),
    });
 };
 
@@ -72,7 +71,6 @@ getSinglePost = async (req, res) =>{
     res.render('single-post', {
         post: post,
         inputData: sessionErrorData,
-        csrfToken: req.csrfToken(),
     });
 };
 
