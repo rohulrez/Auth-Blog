@@ -2,7 +2,10 @@ const User = require('../models/user');
 const validationSession = require('../util/validation-session');
 const validation = require('../util/validation');
 
-
+get401 = (req, res) => {
+    res.status('401').render('401');
+    return;
+}
 
 
 getSignUp = (req, res) => {
@@ -131,5 +134,6 @@ module.exports = {
     getLogin : getLogin,
     signup: signup,
     login: login,
-    logout: logout
+    logout: logout,
+    get401: get401
 }

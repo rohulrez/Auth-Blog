@@ -9,11 +9,7 @@ getHome = (req, res)=>{
 };
 
 
-getAdmin = async (req, res)=> {
-    if(!req.session.isAuthenticated) {
-        return res.status(401).render('401');
-    };   
-    
+getAdmin = async (req, res)=> {    
     const posts = await Post.fetchAll();
 
     const sessionErrorData = validationSession.getSessionErrorData(req, {
@@ -54,8 +50,15 @@ createPost = async (req, res) => {
      res.redirect('/admin')
 }
 
-getSinglePost = async (req, res) =>{
-    let post = new Post(null , null , req.params.id);
+getSinglePost = async (req, res, next) =>{
+    let post;
+    try {
+        post = new Post(null , null , req.params.id);
+    } catch (error){
+        next(error);
+        return;
+    }
+
     await post.fetch();
 
 

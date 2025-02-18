@@ -30,8 +30,8 @@ app.use(csrf());
 app.use(addCSRFTokenMiddleware);
 app.use(authMiddleware);
 
-app.use(blogRoutes);
 app.use(authRoutes);
+app.use(blogRoutes);
 
 app.use((error, req, res, next)=> {
     res.status(500).render('500',{ csrfToken: req.csrfToken() });
